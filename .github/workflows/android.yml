@@ -1,0 +1,41 @@
+name: Android APK Build
+
+# কখন এই রানটি শুরু হবে (যখনই main ব্রাঞ্চে কোড Push করা হবে)
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # ১. গিটহাব সার্ভারে আপনার কোডগুলো নিয়ে আসা
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    # ২. জাভা এনভায়রনমেন্ট সেটআপ করা (আপনার প্রজেক্টের জন্য Java 17 বা তার বেশি লাগবে)
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'zulu'
+        java-version: '17'
+        cache: 'gradle'
+
+    # ৩. গ্রেডল রান করার জন্য ফাইলটিকে পারমিশন দেওয়া
+    - name: Grant Execute Permission for Gradlew
+      run: chmod +x gradlew
+
+    # ৪. টেস্ট এবং ডিবাগ APK বিল্ড করা
+    - name: Build Debug APK
+      run: ./gradlew assembleDebug
+
+    # ৫. তৈরি হওয়া APK ফাইলটি গিটহাবে ডাউনলোডের জন্য আপলোড করা
+    - name: Upload APK Artifact
+      uses: actions/artifacts-upload@v4
+      with:
+        name: my-android-app-apk
+        path: app/build/outputs/apk/debug/*.apk
+        
