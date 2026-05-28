@@ -14,24 +14,24 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    # ১. জাভার একদম সঠিক এবং স্টেবল ভার্সন সেটআপ (KSP ক্র্যাশ ফিক্স)
-    - name: Set up JDK 17
+    # ১. লেটেস্ট KSP ও কম্পোজ প্লাগইনের জন্য জাভা ২১ সেটআপ (এরর ফিক্স)
+    - name: Set up JDK 21
       uses: actions/setup-java@v4
       with:
-        distribution: 'temurin' # জুলু থেকে টেমুরিনে পরিবর্তন করা হয়েছে স্টেবিলিটির জন্য
-        java-version: '17'
+        distribution: 'temurin'
+        java-version: '21'
 
-    # ২. গ্রেডল ক্যাশ ও টুলস অটো সেটআপ
+    # ২. গ্রেডল রানার ও ক্যাশ অটো সেটআপ
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
 
-    # ৩. সিক্রেটস প্লাগইনের জন্য ডামি .env ফাইল তৈরি
+    # ৩. সিক্রেটস প্লাগইনের জন্য খালি .env ফাইল তৈরি
     - name: Create Dummy Env File
       run: touch .env
 
-    # ৪. সরাসরি গ্রেডল দিয়ে বিল্ড রান করা
+    # ৪. সরাসরি গ্রেডল দিয়ে ডিবাগ APK বিল্ড করা
     - name: Build Debug APK
-      run: gradle assembleDebug
+      run: gradle assembleDebug --no-daemon
 
     # ৫. তৈরি হওয়া APK ফাইলটি ডাউনলোডের জন্য আপলোড করা
     - name: Upload APK Artifact
