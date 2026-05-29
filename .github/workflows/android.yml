@@ -25,19 +25,19 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
 
-    # ৩. সিক্রেটস প্লাগইনের এরর কাটানোর জন্য ফাইল তৈরি
+    # ৩. সিক্রেটস ও কি-স্টোরের এরর বাইপাস করার জন্য ডামি ফাইল তৈরি
     - name: Create Dummy Env and Keystore Files
       run: |
         touch .env
         mkdir -p app
-        # গিটহাব রানার যাতে কি-স্টোর ফাইল মিসিং এরর না দেয় তার জন্য একটি ফেইক কি-স্টোর তৈরি
         keytool -genkey -v -keystore app/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
 
-    # ৪. কি-স্টোর ও ম্যানিফেস্টের পাথ এরর বাইপাস করে সরাসরি বিল্ড রান করা
+    # ৪. সরাসরি 'app' ফোল্ডারের ভেতরে ঢুকে গ্রেডল টাস্ক রান করা (ফিক্স)
     - name: Build Debug APK
-      run: gradle :app:assembleDebug -Pandroid.injected.signing.config.signingReady=true --no-daemon
+      run: gradle assembleDebug -Pandroid.injected.signing.config.signingReady=true --no-daemon
+      working-directory: app
 
-    # ৫. তৈরি হওয়া APK ফাইলটি আপলোড করা
+    # ৫. তৈরি হওয়া APK ফাইলটি গিটহাবে আপলোড করা
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
